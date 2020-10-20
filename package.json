@@ -1,0 +1,65 @@
+{
+  "name": "@aptoma/folio-api",
+  "version": "1.0.0",
+  "author": "Gunnar Lium <gunnar@aptoma.com>",
+  "repository": {
+    "url": "https://github.com/aptoma/folio-api",
+    "type": "git"
+  },
+  "scripts": {
+    "start": "node server",
+    "start:dev": "nodemon server/index.js -e js,json -w server -w config | pretty-hapi-log"
+  },
+  "dependencies": {
+    "@aptoma/hapi-dredition-auth": "^2.3.0",
+    "@aptoma/hapi-graceful-stop": "^3.0.0",
+    "@aptoma/hapi-log": "^7.1.0",
+    "@aptoma/hapi-route-status": "^3.1.0",
+    "@aptoma/hapi-static-headers": "^3.0.0",
+    "@hapi/boom": "^9.1.0",
+    "@hapi/hapi": "^20.0.1",
+    "@hapi/hoek": "^9.1.0",
+    "@hapi/joi": "^17.1.1",
+    "attempt-promise": "^2.0.1",
+    "hapi-auth-bearer-token": "^8.0.0",
+    "hapi-auth-jwt2": "^10.2.0",
+    "joi": "^17.3.0",
+    "request-prom": "^4.0.1",
+    "vm2": "^3.9.2"
+  },
+  "devDependencies": {
+    "@aptoma/eslint-config": "^7.0.1",
+    "eslint": "^6.5.1",
+    "prettier": "^1.18.2",
+    "prettier-stylelint": "^0.4.2"
+  },
+  "eslintConfig": {
+    "extends": "@aptoma/eslint-config",
+    "env": {
+      "node": true,
+      "jest": true,
+      "es6": true
+    },
+    "rules": {
+      "operator-linebreak": [
+        "error",
+        "after",
+        {
+          "overrides": {
+            "?": "before",
+            ":": "before"
+          }
+        }
+      ]
+    },
+    "parserOptions": {
+      "ecmaVersion": 2018
+    }
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "bracketSpacing": false,
+    "arrowParens": "always"
+  }
+}

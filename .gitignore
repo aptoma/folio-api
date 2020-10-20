@@ -1,0 +1,10 @@
+.npmrc
+compiled
+coverage
+node_modules
+npm-debug.log
+dist
+REVISION
+var
+server.json
+config/config.js
