@@ -1,0 +1,24 @@
+{
+  "docker": {
+    "app": "folio-api",
+    "department": "dredition",
+    "region": "eu-central-1",
+    "environments": {
+      "prod": {
+        "cluster": "prod"
+      }
+    },
+    "deployments": {
+      "prod": {
+        "environment": "prod",
+        "http": {
+          "port": "8080",
+          "healthCheckPath": "/status"
+        },
+        "variables": {
+          "NODE_ENV": "production"
+        }
+      }
+    }
+  }
+}

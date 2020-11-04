@@ -7,6 +7,10 @@
     "type": "git"
   },
   "scripts": {
+    "docker:build": "amp docker build",
+    "deploy:dev": "amp docker deploy dev HEAD",
+    "deploy:prod": "amp docker deploy prod HEAD",
+    "lint": "eslint server",
     "start": "node server",
     "start:dev": "nodemon server/index.js -e js,json -w server -w config | pretty-hapi-log"
   },
@@ -28,6 +32,7 @@
     "vm2": "^3.9.2"
   },
   "devDependencies": {
+    "@aptoma/amp-cli": "^1.29.2",
     "@aptoma/eslint-config": "^7.0.1",
     "eslint": "^6.5.1",
     "prettier": "^1.18.2",
