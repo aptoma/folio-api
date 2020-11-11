@@ -8,7 +8,7 @@ module.exports = {
 		url: 'https://dredition-api.aptoma.no'
 	},
 	brokkr: {
-		url: 'https://brokkr.prod.aws.aptoma.no'
+		url: 'https://brokkr.prod.ecs.aws.aptoma.no'
 	},
 	assetBuilder: {
 		url: 'https://asset-builder.prod.ecs.aws.aptoma.no'

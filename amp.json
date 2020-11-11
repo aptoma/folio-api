@@ -6,6 +6,9 @@
     "environments": {
       "prod": {
         "cluster": "prod"
+      },
+      "dev": {
+        "cluster": "dev"
       }
     },
     "deployments": {
@@ -17,6 +20,16 @@
         },
         "variables": {
           "NODE_ENV": "production"
+        }
+      },
+      "dev": {
+        "environment": "dev",
+        "http": {
+          "port": "8080",
+          "healthCheckPath": "/status"
+        },
+        "variables": {
+          "NODE_ENV": "development"
         }
       }
     }
