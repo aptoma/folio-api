@@ -6,6 +6,14 @@ module.exports = {
 		port: 9110
 	},
 	dredition: {
-		url: 'https://localhost:9600'
+		url: 'https://dredition-api.aptoma.no'
+	},
+	brokkr: {
+		url: 'https://brokkr.prod.aws.aptoma.no'
+	},
+	assetBuilder: {
+		url: 'https://asset-builder.prod.ecs.aws.aptoma.no',
+		// When using an asset builder in a different environment from DrEdition, apikey must be hardcoded
+		apikey: ''
 	}
 };

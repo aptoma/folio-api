@@ -6,5 +6,11 @@ module.exports = {
 	},
 	dredition: {
 		url: 'https://dredition-api-dev.aptoma.no'
+	},
+	brokkr: {
+		url: 'https://brokkr.dev.aws.aptoma.no'
+	},
+	assetBuilder: {
+		url: 'https://asset-builder.dev.ecs.aws.aptoma.no'
 	}
 };
