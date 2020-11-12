@@ -30,3 +30,31 @@ The render function should return an array of layer objects:
 It's currently expected that each layer will have the same size as the print page.
 
 It's not yet decided how Brokkr will get the correct assetsPath, or whether that should come from somewhere else. It's expected that a customer may wish to have multiple repos, and quite possibly not the same commit for all products (at least when implementing new folio elements).
+
+Enable Folio API in DrEdition
+-----------------------------
+
+To enable the Folio API in DrEdition, you need to add a few fields to the edition schema:
+
+```json
+{
+	"type": "object",
+	"properties": {
+		"useFolioApi": {
+			"type": "boolean",
+			"default": true
+		},
+		"folioApiUrl": {
+			"type": "string",
+			"default": "https://folio-api.prod.ecs.aws.aptoma.no"
+		},
+		"folioRepoBranch": {
+			"type": "string",
+			"default": "aptoma/{repo}/master"
+		}
+	}
+}
+
+```
+
+The API is currently only invoked through Brokkr, but there's a plan to be able to create the folio directly from DrEdition.
