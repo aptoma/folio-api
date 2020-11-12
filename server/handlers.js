@@ -15,8 +15,7 @@ exports.folio = async (req) => {
 	} = req.payload;
 
 	const assConfig = req.auth.credentials.integrations.ass;
-	const assetsPath =
-		edition.data.folioAssetsPath || (await getAssetsPath(edition.data, assConfig.username, authorization));
+	const assetsPath = edition.data.folioAssetsPath || (await getAssetsPath(edition.data, assConfig, authorization));
 
 	let customerModule;
 	try {

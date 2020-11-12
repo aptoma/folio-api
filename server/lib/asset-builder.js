@@ -4,7 +4,7 @@ const Boom = require('@hapi/boom');
 const http = require('./http');
 const {assetBuilder: assetBuilderConfig} = require('../config');
 
-exports.getAssetsPath = async (editionData, assUser, authorization) => {
+exports.getAssetsPath = async (editionData, assConfig, authorization) => {
 	if (!editionData.folioRepoBranch) {
 		throw Boom.badRequest('editionData.folioRepoBranch is missing, should contain {org}/{repo}/{branch}');
 	}
@@ -27,7 +27,7 @@ exports.getAssetsPath = async (editionData, assUser, authorization) => {
 
 	try {
 		const response = await http.request({method, url, headers, json: true});
-		return `https://smooth-storage.aptoma.no/users/${assUser}/files/assets/${response.body.revision}`;
+		return `${assConfig.httpsUrl}/users/${assConfig.username}/files/assets/${response.body.revision}`;
 	} catch (err) {
 		throw Boom.badRequest(err.message);
 	}

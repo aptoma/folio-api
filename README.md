@@ -1,18 +1,25 @@
 DrEdition Folio API
 ===================
 
-The folio api will be called by Brokkr to render any customer specific elements on print pages.
+The folio api will be called by Brokkr or DrEdition directly to render any customer specific elements on print pages.
 
 This API has one endpoint:
 
-- `POST /folio`, which will render the folio based on page data, and write the resulting HTML to Smooth Storage
+- `POST /folio`, which will render the folio based on page data, and write the resulting HTML to Smooth Storage. It can also optionally create a PDF and preview image.
 
 It relies on `@aptoma/hapi-dredition-auth` for access to ASS credentials.
+
+We use https://github.com/patriksimek/vm2 to compile and execute the customer code in a presumed safe samdbox. We then upload each layer to Smooth Storage, and if `withPdf: true`, we also create a PDF and preview image using Brokkr.
+
 
 Customer files
 --------------
 
-The payload from Brokkr should contain a field `assetsPath`, which should point to the root of the customer folio repo. That repo should have two folders, files and stylesheets, where files should contain a single index.js with a `render(data, assetsPath[, http])` function.
+The expected payload is the same as can be fetched from `/print-editions/{id}/pages/{pageId}/folio-data` in the DrEdition API.
+
+We use the `edition.data` field to determine how to fetch assets path. We either read `folioAssetsPath`, which should be the base url where `files/index.js` can be found, or we expect the name of an Aptoma GitHub repo connected to Asset Builder, ie. `aptoma/folio-nhst-fiskeribladet/master`.
+
+`files/index.js` should have a `render(data, assetsPath[, http])` function.
 
 The render function should return an array of layer objects:
 
