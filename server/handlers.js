@@ -11,7 +11,8 @@ exports.folio = async (req) => {
 	const {
 		data: {pages, edition, product, authorization},
 		pageId,
-		withPdf = false
+		imageFormat,
+		withPdf
 	} = req.payload;
 
 	const assConfig = req.auth.credentials.integrations.ass;
@@ -20,7 +21,7 @@ exports.folio = async (req) => {
 	let customerModule;
 	try {
 		customerModule = await timeFunc(
-			() => sandbox(`${assetsPath}/files/index.js`),
+			() => sandbox(`${assetsPath}/files/index.js`, Boolean(edition.data.folioAssetsPath)),
 			(time) => req.log(['info', 'sandbox'], `Compiled ${assetsPath}/files/index.js in ${time}ms`)
 		);
 	} catch (err) {
@@ -29,7 +30,6 @@ exports.folio = async (req) => {
 	}
 
 	const layers = await customerModule.render(req.payload, assetsPath, http);
-
 	return timeFunc(
 		() => publishLayers(layers),
 		(time) => req.log(['info', 'pdf'], `Published ${layers.length} layers in ${time}ms (withPdf: ${withPdf})`)
@@ -41,7 +41,8 @@ exports.folio = async (req) => {
 
 		return Promise.all(
 			layers.map(async (layer) => {
-				const filename = `folio/${product.name}/${editionId}/${page.displayNumber}-${layer.name}.html`;
+				const title = `${page.displayNumber}-${layer.name}`;
+				const filename = `folio/${product.name}/${editionId}/${title}.html`;
 				const url = await publishFile(filename, layer.html, assConfig);
 
 				const responseLayer = {
@@ -51,7 +52,7 @@ exports.folio = async (req) => {
 				};
 
 				if (withPdf) {
-					const pdfResponse = await createPdf(url, `${page.displayNumber}-${layer.name}`, {
+					const pdfResponse = await createPdf(url, title, imageFormat, {
 						authorization
 					});
 					responseLayer.pdfUrl = pdfResponse.pdfUrl;

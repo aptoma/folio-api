@@ -1,5 +1,6 @@
 'use strict';
 
+const Joi = require('joi');
 const handlers = require('./handlers');
 
 module.exports = {
@@ -12,7 +13,22 @@ function register(server) {
 		method: 'POST',
 		path: '/folio',
 		options: {
-			handler: handlers.folio
+			handler: handlers.folio,
+			validate: {
+				options: {
+					stripUnknown: true,
+					allowUnknown: true
+				},
+				failAction: (req, h, err) => err,
+				payload: Joi.object({
+					data: Joi.object().required(),
+					pageId: Joi.string(),
+					withPdf: Joi.bool().default(false),
+					imageFormat: Joi.string()
+						.allow('jpg', 'png')
+						.default('jpg')
+				}).required()
+			}
 		}
 	});
 }

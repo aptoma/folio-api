@@ -58,3 +58,10 @@ To enable the Folio API in DrEdition, you need to add a few fields to the editio
 ```
 
 The API is currently only invoked through Brokkr, but there's a plan to be able to create the folio directly from DrEdition.
+
+
+### Running locally
+
+If you want to run this locally, you need to have at least DrEdition API and Brokkr running locally as well. You can use
+the prod version of Asset Builder, provided you manually set an API key that has access to the DrEdition account matching
+the Smooth Storage account you're using.

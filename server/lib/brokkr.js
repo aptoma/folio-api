@@ -3,7 +3,7 @@
 const http = require('./http');
 const config = require('../config');
 
-exports.createPdf = async (htmlUrl, title, headers) => {
+exports.createPdf = async (htmlUrl, title, imageFormat, headers) => {
 	const method = 'POST';
 	const url = config.brokkr.url + '/pdf/from-url';
 
@@ -14,7 +14,8 @@ exports.createPdf = async (htmlUrl, title, headers) => {
 			json: true,
 			body: {
 				url: htmlUrl,
-				title
+				title,
+				imageFormat
 			},
 			headers
 		},

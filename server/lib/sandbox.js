@@ -5,12 +5,12 @@ const request = require('request-prom');
 
 const scriptCache = {};
 
-module.exports = async (scriptUrl) => {
+module.exports = async (scriptUrl, noCache = false) => {
 	const vm = new NodeVM({
 		sandbox: {self: null}
 	});
 
-	if (!scriptCache[scriptUrl]) {
+	if (noCache || !scriptCache[scriptUrl]) {
 		const customerCode = (await request(scriptUrl)).body.toString();
 		scriptCache[scriptUrl] = {
 			script: new VMScript(customerCode)
