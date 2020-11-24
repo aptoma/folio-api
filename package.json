@@ -11,6 +11,8 @@
     "deploy:prod": "amp docker deploy prod HEAD",
     "docker:build": "amp docker build",
     "lint": "eslint server",
+    "logs:dev": "open https://my.papertrailapp.com/groups/9500841/events?q=program%3Afolio-api-dev.info.log",
+    "logs:prod": "open https://my.papertrailapp.com/groups/13771841/events?q=program%3Afolio-api-prod.info.log",
     "release": "release-it --ci -i patch",
     "release:minor": "release-it --ci -i minor",
     "release:major": "release-it --ci -i major",
