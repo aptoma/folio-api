@@ -7,12 +7,16 @@
     "type": "git"
   },
   "scripts": {
-    "docker:build": "amp docker build",
     "deploy:dev": "amp docker deploy dev HEAD",
     "deploy:prod": "amp docker deploy prod HEAD",
+    "docker:build": "amp docker build",
     "lint": "eslint server",
+    "release": "release-it --ci -i patch",
+    "release:minor": "release-it --ci -i minor",
+    "release:major": "release-it --ci -i major",
     "start": "node server",
-    "start:dev": "nodemon server/index.js -e js,json -w server -w config | pretty-hapi-log"
+    "start:dev": "nodemon server/index.js -e js,json -w server -w config | pretty-hapi-log",
+    "test": "npm run lint"
   },
   "dependencies": {
     "@aptoma/hapi-dredition-auth": "^2.3.0",
@@ -36,7 +40,8 @@
     "@aptoma/eslint-config": "^7.0.1",
     "eslint": "^6.5.1",
     "prettier": "^1.18.2",
-    "prettier-stylelint": "^0.4.2"
+    "prettier-stylelint": "^0.4.2",
+    "release-it": "^14.2.1"
   },
   "eslintConfig": {
     "extends": "@aptoma/eslint-config",

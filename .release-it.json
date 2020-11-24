@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "before:init": ["npm run test"]
+  },
+  "git": {
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
+  }
+}
