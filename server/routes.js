@@ -24,6 +24,7 @@ function register(server) {
 					data: Joi.object().required(),
 					pageId: Joi.string(),
 					withPdf: Joi.bool().default(false),
+					notify: Joi.bool().default(false),
 					imageFormat: Joi.string()
 						.allow('jpg', 'png')
 						.default('jpg')
