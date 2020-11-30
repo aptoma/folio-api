@@ -8,7 +8,30 @@ const {getAssetsPath} = require('./lib/asset-builder');
 const {createPdf} = require('./lib/brokkr');
 const {sendFolioResponse} = require('./lib/dredition');
 
+exports.handleSQSMessage = (dreditionAuth, server) => {
+	return async (message, cb) => {
+		server.log(['info', 'sqs'], `Processing ${message.MessageId}`);
+		const payload = JSON.parse(message.Body);
+		const {data} = payload;
+
+		let credentials;
+		try {
+			credentials = await getCredentials(dreditionAuth, data.authorization);
+		} catch (err) {
+			server.log(['sqs', 'error'], err.message);
+			return cb(); // no retry
+		}
+
+		await handleMessage(payload, credentials.integrations.ass, server);
+		return cb();
+	};
+};
+
 exports.folio = async (req) => {
+	return handleMessage(req.payload, req.auth.credentials.integrations.ass, req);
+};
+
+async function handleMessage(payload, assConfig, logger) {
 	const {
 		data: {
 			pages,
@@ -22,15 +45,14 @@ exports.folio = async (req) => {
 		imageFormat,
 		withPdf,
 		notify
-	} = req.payload;
+	} = payload;
 	const page = pages.find((p) => p._id === pageId);
 	const editionId = edition._id;
-	req.log(
+	logger.log(
 		['info'],
 		`Create folio for ${clientId}/${product.name}/${edition.name || editionId}/${page.displayNumber}`
 	);
 
-	const assConfig = req.auth.credentials.integrations.ass;
 	const assetsPath = edition.data.folioAssetsPath || (await getAssetsPath(edition.data, assConfig, authorization));
 
 	const customerModule = await compileCustomerModule();
@@ -42,10 +64,10 @@ exports.folio = async (req) => {
 		try {
 			return await timeFunc(
 				() => sandbox(`${assetsPath}/files/index.js`, Boolean(edition.data.folioAssetsPath)),
-				(time) => req.log(['info', 'sandbox'], `Compiled ${assetsPath}/files/index.js in ${time}ms`)
+				(time) => logger.log(['info', 'sandbox'], `Compiled ${assetsPath}/files/index.js in ${time}ms`)
 			);
 		} catch (err) {
-			req.log(['err', 'sandbox'], err.message);
+			logger.log(['err', 'sandbox'], err.message);
 			throw await handleError(
 				Boom.badRequest(`Unable to compile customer module from ${assetsPath}/files/index.js`)
 			);
@@ -53,14 +75,14 @@ exports.folio = async (req) => {
 	}
 
 	async function renderLayers() {
-		const {data, pageId} = req.payload;
+		const {data, pageId} = payload;
 		try {
 			return await timeFunc(
 				() => customerModule.render({data, pageId}, assetsPath, http),
-				(time) => req.log(['info', 'render'], `Rendered layers in ${time}ms`)
+				(time) => logger.log(['info', 'render'], `Rendered layers in ${time}ms`)
 			);
 		} catch (err) {
-			req.log(['err', 'render'], err.message);
+			logger.log(['err', 'render'], err.message);
 			throw await handleError(Boom.badRequest(err));
 		}
 	}
@@ -70,10 +92,10 @@ exports.folio = async (req) => {
 			return await timeFunc(
 				() => publish(layers),
 				(time) =>
-					req.log(['info', 'pdf'], `Published ${layers.length} layers in ${time}ms (withPdf: ${withPdf})`)
+					logger.log(['info', 'pdf'], `Published ${layers.length} layers in ${time}ms (withPdf: ${withPdf})`)
 			);
 		} catch (err) {
-			req.log(['err', 'publish'], err.message);
+			logger.log(['err', 'publish'], err.message);
 			throw await handleError(err);
 		}
 
@@ -111,7 +133,7 @@ exports.folio = async (req) => {
 						authorization
 					);
 				} catch (err) {
-					req.log(['err', 'notify'], err.message);
+					logger.log(['err', 'notify'], err.message);
 				}
 			}
 
@@ -128,12 +150,12 @@ exports.folio = async (req) => {
 				await sendFolioResponse(editionId, {_id: pageId}, issuedBy, authorization, err.message);
 				err.output.payload.callbackSent = true;
 			} catch (notifyError) {
-				req.log(['err', 'notify'], notifyError.message);
+				logger.log(['err', 'notify'], notifyError.message);
 			}
 		}
 		return err;
 	}
-};
+}
 
 async function timeFunc(func, logFunc) {
 	const start = process.hrtime();
@@ -142,4 +164,25 @@ async function timeFunc(func, logFunc) {
 	const time = diff[0] * 1000 + Math.round(diff[1] / 1000000);
 	logFunc(time);
 	return res;
+}
+
+async function getCredentials(dreditionAuth, authorization) {
+	const matches = /^((apikey|Bearer)\s)?([^$]+)/.exec(authorization);
+
+	const type = matches[2];
+	const token = matches[3];
+
+	let validation;
+	if (type === 'Bearer') {
+		validation = await dreditionAuth.validateJwt(null, {auth: {token}});
+	} else {
+		validation = await dreditionAuth.validateApiKey(null, token);
+	}
+
+	if (!validation.isValid) {
+		throw new Error('Invalid authentication');
+	}
+
+	validation.credentials.authHeader = `${type || 'apikey'} ${token}`;
+	return validation.credentials;
 }

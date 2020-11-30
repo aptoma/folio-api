@@ -26,6 +26,7 @@
     "@aptoma/hapi-log": "^7.1.0",
     "@aptoma/hapi-route-status": "^3.1.0",
     "@aptoma/hapi-static-headers": "^3.0.0",
+    "@aptoma/sqs-consumer": "^1.0.0",
     "@hapi/boom": "^9.1.0",
     "@hapi/hapi": "^20.0.1",
     "@hapi/hoek": "^9.1.0",

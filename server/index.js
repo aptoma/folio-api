@@ -9,6 +9,8 @@ const Hapi = require('@hapi/hapi');
 const config = require('./config');
 const pkgInfo = require('../package.json');
 const revisionFile = __dirname + '/../REVISION';
+const handlers = require('./handlers');
+const Consumer = require('@aptoma/sqs-consumer');
 
 const server = Hapi.server(config.server);
 
@@ -77,6 +79,15 @@ async function init() {
 		strategies: ['jwt', 'apikey']
 	});
 
+	let statusCallback = (data) => data;
+	if (config.sqs) {
+		statusCallback = (data) => {
+			data.lastPoll = lastPoll.toISOString();
+			return data;
+		};
+		await sqsInit(server.plugins['dredition-auth']);
+	}
+
 	await server.register([
 		require('@aptoma/hapi-graceful-stop'),
 		require('./routes'),
@@ -90,7 +101,36 @@ async function init() {
 		},
 		{
 			plugin: require('@aptoma/hapi-route-status'),
-			options: {version: pkgInfo.version, revisionFile}
+			options: {version: pkgInfo.version, revisionFile, callback: statusCallback}
 		}
 	]);
+}
+
+let lastPoll = new Date();
+async function sqsInit(dreditionAuth) {
+	const app = new Consumer(
+		Object.assign({}, config.sqs, {
+			handleMessage: handlers.handleSQSMessage(dreditionAuth, server)
+		})
+	);
+
+	app.on('didPoll', () => (lastPoll = new Date()));
+	app.on('error', (err) => {
+		if (err.name === 'RequestAbortedError') {
+			server.log(['info', 'sqs'], 'poll request aborted');
+			return;
+		}
+
+		server.log(['error', 'sqs'], err);
+	});
+
+	(async () => {
+		try {
+			server.log(['info', 'sqs'], 'Starting to poll for work');
+			await app.start();
+		} catch (err) {
+			server.log(['error', 'sqs', 'start'], err);
+			process.exit(1);
+		}
+	})();
 }
