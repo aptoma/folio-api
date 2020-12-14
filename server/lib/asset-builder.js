@@ -19,7 +19,7 @@ exports.getAssetsPath = async (editionData, assConfig, authorization) => {
 		throw Boom.badRequest('Repository must be under the aptoma organization');
 	}
 
-	const url = `${assetBuilderConfig.url}/assets/${org}/${repo}/${branch}`;
+	const url = `${assetBuilderConfig.url}/assets/${repo}/${branch}`;
 	const headers = {
 		// For local development, you can provide your own apikey, in order to use prod accounts for asset builder
 		authorization: assetBuilderConfig.apikey ? `apikey ${assetBuilderConfig.apikey}` : authorization
